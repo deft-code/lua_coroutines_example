@@ -1,4 +1,4 @@
-say("Soldier on duty!")
+say("I'm going to sleep")
 
 msg = wait(msg_from("general"))
 
@@ -8,7 +8,7 @@ which, msg = wait(any(msg_from("general"), seconds(20)))
 
 attacking = false
 if which == 1 then
-  say("The general says %q", msg.Msg)
+  say("The general says '%s'", msg.Msg)
   attacking = true
 else
   say("forever alone :.(")

@@ -21,6 +21,9 @@ function dprintf(...)
   end
   printf("%s:%d:%s:%s %s", info.source, info.currentline, info.name, name, sprintf(...))
 end
+
+-- Disable debug printing
+-- Comment this out to enable debug output
 dprintf = function(...)end
 
 function _make_selector(me, who)
@@ -76,7 +79,7 @@ end
 
 function say(f, ...)
   local me = me()
-  printf("%s says %q", me.Name, sprintf(f, ...))
+  printf("%s says '%s'", me.Name, sprintf(f, ...))
 end
 
 function recv()
@@ -90,10 +93,10 @@ end
 function send(who, what)
   local me = me()
   local selector = _make_selector(me, who)
-  dprintf("%s sending %q to %s", me.Name, what, who)
+  dprintf("%s sending '%s' to %s", me.Name, what, who)
   for co, child in pairs(child_by_co) do
     if selector(child) then
-      printf("%s tells %s: %q", me.Name, child.Name, what)
+      printf("%s tells %s '%s'", me.Name, child.Name, what)
       table.insert(child.Msgs, {Src = me, Msg = what})
     end
   end
@@ -102,6 +105,7 @@ end
 function any(...)
   local waiters = {...}
   return function()
+    dprintf("waiter %s", waiters)
     for i, waiter in ipairs(waiters) do
       local ready, resp = waiter()
       if ready then
@@ -126,7 +130,7 @@ function msg_from(who)
     dprintf("%s<%d> is waiting for %s", me.Name, #me.Msgs, tostring(who))
     for i, msg in ipairs(me.Msgs) do
       if selector(msg.Src) then
-        printf("%s hears %s %q", me.Name, msg.Src.Name, msg.Msg)
+        printf("%s hears %s '%s'", me.Name, msg.Src.Name, msg.Msg)
         table.remove(me.Msgs, i)
         return true, msg
       end
@@ -140,7 +144,9 @@ function minutes(m)
 end
 
 function seconds(s)
+  local me = me()
   return function()
+    dprintf("%s<%d> is waiting for %s", me.Name, #me.Msgs, s)
     s = s - 1
     return s < 1, nil
   end
